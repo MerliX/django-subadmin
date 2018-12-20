@@ -1,5 +1,3 @@
-from __future__ import unicode_literals
-
 from collections import OrderedDict
 from functools import partial, update_wrapper
 
@@ -37,7 +35,7 @@ __all__ = ('SubAdmin', 'RootSubAdmin', 'SubAdminMixin', 'RootSubAdminMixin', 'Su
 MODELADMIN_GET_EXCLUDE_SUPPORT = True if hasattr(admin.ModelAdmin, 'get_exclude') else False
 
 
-class SubAdminHelper(object):
+class SubAdminHelper:
     def __init__(self, sub_admin, view_args, object_id=None):
         self.parents = []
         self.lookup_kwargs = {}
@@ -88,7 +86,7 @@ class SubAdminHelper(object):
 
 class SubAdminChangeList(ChangeList):
     def __init__(self, request, *args, **kwargs):
-        super(SubAdminChangeList, self).__init__(request, *args, **kwargs)
+        super().__init__(request, *args, **kwargs)
         self.request = request
 
     def url_for_result(self, result):
@@ -96,7 +94,7 @@ class SubAdminChangeList(ChangeList):
         return self.model_admin.reverse_url('change', *self.model_admin.get_base_url_args(self.request) + [pk])
 
 
-class SubAdminBase(object):
+class SubAdminBase:
     subadmins = None
 
     def get_subadmin_instances(self):
@@ -128,8 +126,7 @@ class SubAdminBase(object):
                     })
         
         context.update({'subadmin_links': subadmin_links})
-        return super(SubAdminBase, self).render_change_form(request, context, add=add, change=change,
-                                                                      form_url=form_url, obj=obj)
+        return super().render_change_form(request, context, add=add, change=change, form_url=form_url, obj=obj)
 
 
 class SubAdminMixin(SubAdminBase):
@@ -150,7 +147,7 @@ class SubAdminMixin(SubAdminBase):
         if self.fk_name is None:
             self.fk_name = _get_foreign_key(parent_model, self.model).name
 
-        super(SubAdminMixin, self).__init__(self.model, parent_admin.admin_site)
+        super().__init__(self.model, parent_admin.admin_site)
         
         self.subadmin_instances = self.get_subadmin_instances()
 
@@ -158,10 +155,10 @@ class SubAdminMixin(SubAdminBase):
         return self.subadmin_helper_class(self, view_args, object_id=object_id)
 
     def get_model_perms(self, request):
-        return super(SubAdminMixin, self).get_model_perms(request)
+        return super().get_model_perms(request)
 
     def get_actions(self, request):
-        actions = super(SubAdminMixin, self).get_actions(request)
+        actions = super().get_actions(request)
 
         def subadmin_delete_selected(modeladmin, req, qs):
             response = delete_selected(modeladmin, req, qs)
@@ -199,11 +196,11 @@ class SubAdminMixin(SubAdminBase):
 
     def get_queryset(self, request):
         lookup_kwargs = request.subadmin.lookup_kwargs
-        return super(SubAdminMixin, self).get_queryset(request).filter(**lookup_kwargs)
+        return super().get_queryset(request).filter(**lookup_kwargs)
     
     def get_form(self, request, obj=None, **kwargs):
         if MODELADMIN_GET_EXCLUDE_SUPPORT:
-            return super(SubAdminMixin, self).get_form(request, obj, **kwargs)
+            return super().get_form(request, obj, **kwargs)
 
         if 'fields' in kwargs:
             fields = kwargs.pop('fields')
@@ -244,7 +241,7 @@ class SubAdminMixin(SubAdminBase):
 
     def get_exclude(self, request, obj=None):
         if MODELADMIN_GET_EXCLUDE_SUPPORT:
-            excluded = super(SubAdminMixin, self).get_exclude(request, obj)
+            excluded = super().get_exclude(request, obj)
         else:
             excluded = self.exclude
         exclude = [] if excluded is None else list(excluded)
@@ -255,7 +252,7 @@ class SubAdminMixin(SubAdminBase):
         for fk_field, instance in request.subadmin.related_instances.items():
             if fk_field in self.model._meta._forward_fields_map.keys():
                 setattr(obj, fk_field, instance)
-        super(SubAdminMixin, self).save_model(request, obj, form, change)
+        super().save_model(request, obj, form, change)
 
     def get_base_viewname(self):
         if hasattr(self.parent_admin, 'get_base_viewname'):
@@ -341,20 +338,20 @@ class SubAdminMixin(SubAdminBase):
         extra_context = kwargs.get('extra_context')
         request.subadmin = SubAdminHelper(self, args)
         extra_context = self.context_add_parent_data(request, extra_context)
-        return super(SubAdminMixin, self).changelist_view(request, extra_context)
+        return super().changelist_view(request, extra_context)
 
     def add_view(self, request, *args, **kwargs):
         form_url, extra_context = kwargs.get('form_url', ''), kwargs.get('extra_context')
         request.subadmin = SubAdminHelper(self, args)
         extra_context = self.context_add_parent_data(request, extra_context)
-        return super(SubAdminMixin, self).add_view(request, form_url, extra_context)
+        return super().add_view(request, form_url, extra_context)
 
     def change_view(self, request, *args, **kwargs):
         form_url, extra_context = kwargs.get('form_url', ''), kwargs.get('extra_context')
         object_id = args[-1]
         request.subadmin = SubAdminHelper(self, args, object_id=object_id)
         extra_context = self.context_add_parent_data(request, extra_context)
-        return super(SubAdminMixin, self).change_view(request, object_id, form_url, extra_context)
+        return super().change_view(request, object_id, form_url, extra_context)
 
     @csrf_protect_m
     @transaction.atomic
@@ -363,14 +360,14 @@ class SubAdminMixin(SubAdminBase):
         object_id = args[-1]
         request.subadmin = SubAdminHelper(self, args, object_id=object_id)
         extra_context = self.context_add_parent_data(request, extra_context)
-        return super(SubAdminMixin, self).delete_view(request, object_id, extra_context)
+        return super().delete_view(request, object_id, extra_context)
 
     def history_view(self, request, *args, **kwargs):
         extra_context = kwargs.get('extra_context')
         object_id = args[-1]
         request.subadmin = SubAdminHelper(self, args, object_id=object_id)
         extra_context = self.context_add_parent_data(request, extra_context)
-        return super(SubAdminMixin, self).history_view(request, object_id, extra_context)
+        return super().history_view(request, object_id, extra_context)
 
     def response_add(self, request, obj, post_url_continue=None):
         opts = obj._meta
@@ -562,11 +559,11 @@ class RootSubAdminMixin(SubAdminBase):
     change_form_template = 'subadmin/parent_change_form.html'
 
     def __init__(self, *args, **kwargs):
-        super(RootSubAdminMixin, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.subadmin_instances = self.get_subadmin_instances()     
 
     def get_urls(self):
-        return self.get_subadmin_urls() + super(RootSubAdminMixin, self).get_urls()
+        return self.get_subadmin_urls() + super().get_urls()
 
     def reverse_url(self, viewname, *args, **kwargs):
         info = self.model._meta.app_label, self.model._meta.model_name, viewname
