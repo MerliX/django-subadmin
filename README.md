@@ -10,6 +10,12 @@ The easiest and recommended way to install `django-subadmin` is from [PyPI](http
 pip install django-subadmin
 ```
 
+Newer versions require python3. If you want to use python2, use `django-subadmin` in version `1.9.2` or lower.
+
+```
+pip install "django-subadmin==1.9.2"
+```
+
 You need to add `subadmin` to `INSTALLED_APPS` in your projects `settings.py`, otherwise `django` will not be able to find the necessary templates and template tags.
 
 ```
