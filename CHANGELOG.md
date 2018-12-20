@@ -1,5 +1,9 @@
 # Changelog
 
+## [?] - ????-??-??
+- added support for Django 2.x
+- dropped python2 support
+
 ## [1.9.2] - 2017-11-21
 - _Fix_: setup.py is now python2 compatible ([Issue #4])
 
