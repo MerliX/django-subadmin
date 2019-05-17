@@ -1,3 +1,4 @@
+import json
 from collections import OrderedDict
 from functools import partial, update_wrapper
 
@@ -22,6 +23,7 @@ from django.utils.http import urlencode, urlquote
 from django.utils.six.moves.urllib.parse import parse_qsl, urlparse, urlunparse
 from django.utils.translation import ugettext as _
 from django.views.decorators.csrf import csrf_protect
+from django.utils import six
 
 try:
     from django.urls import Resolver404, get_script_prefix, resolve, reverse
